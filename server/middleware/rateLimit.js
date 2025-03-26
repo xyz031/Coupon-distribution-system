@@ -9,30 +9,38 @@ const apiLimiter = rateLimit({
   message: { error: 'Too many requests, please try again later.' }
 });
 
-// Ensuring MongoDB is ready before using RateLimiterMongo
+let couponClaimLimiter;
+
+// Initialize Rate Limiter only when MongoDB is ready
 const initializeRateLimiter = () => {
-  if (mongoose.connection.readyState !== 1) {
-    console.error('MongoDB not connected. Rate limiter may fail.');
+  if (mongoose.connection.readyState === 1) {
+    console.log('Initializing RateLimiterMongo...');
+    couponClaimLimiter = new RateLimiterMongo({
+      storeClient: mongoose.connection,
+      points: 2, // Allow 2 coupon claims per hour
+      duration: 60 * 60, // 1 hour
+      keyPrefix: 'coupon_claim'
+    });
+  } else {
+    console.error('MongoDB not connected. Rate limiter initialization delayed.');
   }
-  
-  return new RateLimiterMongo({
-    storeClient: mongoose.connection,
-    points: 2, // 1 claim
-    duration: 60 * 60, // per 1 hour
-    keyPrefix: 'coupon_claim'
-  });
 };
 
-const couponClaimLimiter = initializeRateLimiter();
+// Listen for MongoDB connection event
+mongoose.connection.once('open', initializeRateLimiter);
 
 const couponClaimRateLimit = async (req, res, next) => {
+  if (!couponClaimLimiter) {
+    console.error('Rate limiter not initialized due to missing MongoDB connection.');
+    return res.status(500).json({ error: 'Server error. Please try again later.' });
+  }
+
   try {
-    const ip = req.ip;
-    await couponClaimLimiter.consume(ip);
+    await couponClaimLimiter.consume(req.ip);
     next();
   } catch (e) {
     console.warn(`Rate limit exceeded for IP: ${req.ip}`);
-    res.status(429).send({ error: 'Too many coupon claims from this IP. Please try again later.' });
+    res.status(429).json({ error: 'Too many coupon claims from this IP. Please try again later.' });
   }
 };
 
