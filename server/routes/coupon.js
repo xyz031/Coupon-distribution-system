@@ -28,8 +28,11 @@ router.get('/claim', couponClaimRateLimit, async (req, res) => {
     // Set cookie to prevent immediate re-claim
     res.cookie('coupon_claimed', 'true', { 
       maxAge: 24 * 60 * 60 * 1000, // 1 day
-      httpOnly: true 
+      httpOnly: true, 
+      secure: true, // Needed for HTTPS (remove for localhost testing)
+      sameSite: 'None' // Required for cross-origin cookies
     });
+    
 
     res.send({ coupon });
   } catch (e) {
