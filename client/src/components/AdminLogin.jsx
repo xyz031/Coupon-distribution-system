@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 const AdminLogin = ({ setAdmin }) => {
   const [username, setUsername] = useState('');
@@ -15,7 +15,7 @@ const AdminLogin = ({ setAdmin }) => {
 
     try {
       const response = await axios.post(
-        `${API_URL}/api/admin/login`,
+        `https://coupon-distribution-system-y9sy.onrender.com/api/admin/login`,
         { username, password },
         { withCredentials: true } // Ensures cookies are included if needed
       );
