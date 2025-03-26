@@ -13,7 +13,7 @@ const app = express();
 // Middleware
 const allowedOrigins = [
   'http://localhost:5173', // Local development
-  'https://coupon-distribution-system-livid.vercel.app/', // Vercel frontend
+  'https://coupon-distribution-system-livid.vercel.app', // Vercel frontend
 ];
 
 app.use(cors({
