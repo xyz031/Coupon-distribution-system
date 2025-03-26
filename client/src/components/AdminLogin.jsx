@@ -15,7 +15,7 @@ const AdminLogin = ({ setAdmin }) => {
 
     try {
       const response = await axios.post(
-        `https://coupon-distribution-system-y9sy.onrender.com/api/admin/login`,
+        `${API_URL}/api/admin/login`,
         { username, password },
         { withCredentials: true } // Ensures cookies are included if needed
       );
