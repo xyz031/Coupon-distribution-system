@@ -5,19 +5,26 @@ const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
 const CouponClaim = () => {
   const [coupon, setCoupon] = useState(null);
+  const [message, setMessage] = useState(''); // Success or restriction messages
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleClaim = async () => {
     setIsLoading(true);
     setError('');
+    setMessage('');
 
     try {
       const response = await axios.get(`${API_URL}/api/coupons/claim`, {
         withCredentials: true, // Ensures cookies are sent if needed
       });
 
-      setCoupon(response.data.coupon);
+      if (response.data.coupon) {
+        setCoupon(response.data.coupon);
+        setMessage('Coupon claimed successfully! 🎉'); // Success message
+      } else if (response.data.message) {
+        setMessage(response.data.message); // Server-sent restriction message
+      }
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to claim coupon. Please try again.');
     } finally {
@@ -28,6 +35,9 @@ const CouponClaim = () => {
   return (
     <div className="coupon-claim">
       <h2>Claim Your Coupon</h2>
+
+      {message && <p className="message">{message}</p>}
+      {error && <p className="error">{error}</p>}
 
       {coupon ? (
         <div className="coupon-display">
@@ -40,8 +50,6 @@ const CouponClaim = () => {
           {isLoading ? 'Processing...' : 'Claim Coupon'}
         </button>
       )}
-
-      {error && <p className="error">{error}</p>}
     </div>
   );
 };

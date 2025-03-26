@@ -9,7 +9,7 @@ const apiLimiter = rateLimit({
   message: { error: 'Too many requests, please try again later.' }
 });
 
-// Ensure MongoDB is ready before using RateLimiterMongo
+// Ensuring MongoDB is ready before using RateLimiterMongo
 const initializeRateLimiter = () => {
   if (mongoose.connection.readyState !== 1) {
     console.error('MongoDB not connected. Rate limiter may fail.');
