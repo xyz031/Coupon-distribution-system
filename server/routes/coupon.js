@@ -14,17 +14,7 @@ router.get('/claim', couponClaimRateLimit, async (req, res) => {
       return res.status(400).json({ error: 'You have already claimed a coupon recently.' });
     }
 
-    // Check if the IP has claimed a coupon in the last 24 hours
-    const recentClaim = await Coupon.findOne({
-      isClaimed: true,
-      ipAddress: userIP,
-      claimedAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } // Last 24 hours
-    });
-
-    if (recentClaim) {
-      return res.status(400).json({ error: 'You have already claimed a coupon in the last 24 hours.' });
-    }
-
+   
     // Find an available coupon
     const coupon = await Coupon.findOne({ isActive: true, isClaimed: false }).sort({ createdAt: 1 });
 
