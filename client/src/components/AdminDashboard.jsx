@@ -5,6 +5,7 @@ const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
 const AdminDashboard = () => {
   const [coupons, setCoupons] = useState([]);
+  const [claimedCoupons, setClaimedCoupons] = useState([]); // Claimed Coupons History
   const [newCoupon, setNewCoupon] = useState({ code: '', value: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -21,7 +22,11 @@ const AdminDashboard = () => {
       const response = await axios.get(`${API_URL}/api/coupons/admin`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setCoupons(response.data);
+
+      // Separate claimed and unclaimed coupons
+      const allCoupons = response.data;
+      setCoupons(allCoupons.filter((coupon) => !coupon.isClaimed));
+      setClaimedCoupons(allCoupons.filter((coupon) => coupon.isClaimed));
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to fetch coupons');
     }
@@ -98,51 +103,70 @@ const AdminDashboard = () => {
 
       {error && <p className="error">{error}</p>}
 
-      {/* Coupon List Table */}
+      {/* Active Coupons List */}
       <div className="coupons-list">
-        <h3>All Coupons</h3>
+        <h3>Available Coupons</h3>
         <table>
           <thead>
             <tr>
               <th>Code</th>
               <th>Value</th>
               <th>Status</th>
-              <th>Claimed By</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {coupons.map((coupon) => (
-              <tr key={coupon._id}>
-                <td>{coupon.code}</td>
-                <td>${coupon.value}</td>
-                <td>
-                  {coupon.isClaimed
-                    ? 'Claimed'
-                    : coupon.isActive
-                    ? 'Available'
-                    : 'Inactive'}
-                </td>
-                <td>
-                  {coupon.isClaimed ? (
-                    <>
-                      <div>IP: {coupon.ipAddress}</div>
-                      <div>At: {new Date(coupon.claimedAt).toLocaleString()}</div>
-                    </>
-                  ) : (
-                    '-'
-                  )}
-                </td>
-                <td>
-                  <button
-                    onClick={() => toggleCouponStatus(coupon._id, !coupon.isActive)}
-                    disabled={coupon.isClaimed}
-                  >
-                    {coupon.isActive ? 'Deactivate' : 'Activate'}
-                  </button>
-                </td>
+            {coupons.length > 0 ? (
+              coupons.map((coupon) => (
+                <tr key={coupon._id}>
+                  <td>{coupon.code}</td>
+                  <td>${coupon.value}</td>
+                  <td>{coupon.isActive ? 'Available' : 'Inactive'}</td>
+                  <td>
+                    <button
+                      onClick={() => toggleCouponStatus(coupon._id, !coupon.isActive)}
+                    >
+                      {coupon.isActive ? 'Deactivate' : 'Activate'}
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="4">No available coupons</td>
               </tr>
-            ))}
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Coupon Claim History */}
+      <div className="claim-history">
+        <h3>Claimed Coupons History</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Value</th>
+              <th>Claimed At</th>
+              <th>Claimed By (IP Address)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {claimedCoupons.length > 0 ? (
+              claimedCoupons.map((coupon) => (
+                <tr key={coupon._id}>
+                  <td>{coupon.code}</td>
+                  <td>${coupon.value}</td>
+                  <td>{new Date(coupon.claimedAt).toLocaleString()}</td>
+                  <td>{coupon.ipAddress || 'Unknown'}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="4">No claimed coupons</td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
