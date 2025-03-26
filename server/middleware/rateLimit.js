@@ -17,7 +17,7 @@ const initializeRateLimiter = () => {
   
   return new RateLimiterMongo({
     storeClient: mongoose.connection,
-    points: 1, // 1 claim
+    points: 2, // 1 claim
     duration: 60 * 60, // per 1 hour
     keyPrefix: 'coupon_claim'
   });
