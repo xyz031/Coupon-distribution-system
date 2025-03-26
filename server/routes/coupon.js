@@ -8,9 +8,9 @@ const auth = require('../middleware/auth');
 router.get('/claim',couponClaimRateLimit, async (req, res) => {
   try {
     // Check if user has a cookie indicating recent claim
-    // if (req.cookies.coupon_claimed) {
-    //   return res.status(400).send({ error: 'You have already claimed a coupon recently.' });
-    // }
+    if (req.cookies.coupon_claimed) {
+      return res.status(400).send({ error: 'You have already claimed a coupon recently.' });
+    }
 
     const coupon = await Coupon.findOne({ isActive: true, isClaimed: false })
       .sort({ createdAt: 1 });
