@@ -7,10 +7,12 @@
   color: #333;
 }
 
+/* Header */
 header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
   margin-bottom: 30px;
   padding: 15px 20px;
   background: #2c3e50;
@@ -25,6 +27,11 @@ header h1 {
 
 header h1:hover {
   color: #1abc9c;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
 }
 
 button {
@@ -56,6 +63,8 @@ button:disabled {
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  margin: auto;
 }
 
 /* Coupon Display */
@@ -140,10 +149,22 @@ tbody tr:hover {
   header {
     flex-direction: column;
     text-align: center;
+    gap: 10px;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    width: 100%;
   }
 
   button {
     width: 100%;
+  }
+
+  .coupon-claim,
+  .admin-login,
+  .admin-dashboard {
+    width: 90%;
   }
 
   table {
@@ -152,5 +173,34 @@ tbody tr:hover {
 
   th, td {
     padding: 8px;
+  }
+
+  /* Responsive Table */
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tr {
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    padding: 10px;
+  }
+
+  td {
+    text-align: right;
+    position: relative;
+    padding-left: 50%;
+  }
+
+  td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 10px;
+    font-weight: bold;
+    text-align: left;
   }
 }

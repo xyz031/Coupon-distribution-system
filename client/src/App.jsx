@@ -48,7 +48,7 @@ function App() {
   );
 }
 
-// Header Component with Login/Logout Button
+// Header Component with Login/Logout Button & Dashboard Link
 const Header = ({ admin, handleLogout }) => {
   const navigate = useNavigate();
 
@@ -57,15 +57,22 @@ const Header = ({ admin, handleLogout }) => {
       <h1 onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
         Coupon Distribution System
       </h1>
-      {admin ? (
-        <button onClick={handleLogout} className="logout-btn">
-          Logout
-        </button>
-      ) : (
-        <button onClick={() => navigate('/admin/login')} className="login-btn">
-          Admin Login
-        </button>
-      )}
+      <div className="header-actions">
+        {admin ? (
+          <>
+            <button onClick={() => navigate('/admin/dashboard')} className="dashboard-btn">
+              Admin Dashboard
+            </button>
+            <button onClick={handleLogout} className="logout-btn">
+              Logout
+            </button>
+          </>
+        ) : (
+          <button onClick={() => navigate('/admin/login')} className="login-btn">
+            Admin Login
+          </button>
+        )}
+      </div>
     </header>
   );
 };
