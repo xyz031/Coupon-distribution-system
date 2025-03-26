@@ -11,10 +11,24 @@ const { apiLimiter } = require('./middleware/rateLimit');
 const app = express();
 
 // Middleware
+const allowedOrigins = [
+  'http://localhost:5173', // Local development
+  'https://coupon-distribution-system-zeta.vercel.app', // Vercel frontend
+];
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
-  credentials: true
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
 }));
+
+
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(apiLimiter);
