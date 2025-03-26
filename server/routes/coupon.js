@@ -7,39 +7,33 @@ const auth = require('../middleware/auth');
 // Get next available coupon
 router.get('/claim', couponClaimRateLimit, async (req, res) => {
   try {
-    const userIP = req.ip;
-
-    // Check if user has already claimed using cookies
+    // Check if user has a cookie indicating recent claim
     if (req.cookies.coupon_claimed) {
-      return res.status(400).json({ error: 'You have already claimed a coupon recently.' });
+      return res.status(400).send({ error: 'You have already claimed a coupon recently.' });
     }
 
-   
-    // Find an available coupon
-    const coupon = await Coupon.findOne({ isActive: true, isClaimed: false }).sort({ createdAt: 1 });
+    const coupon = await Coupon.findOne({ isActive: true, isClaimed: false })
+      .sort({ createdAt: 1 });
 
     if (!coupon) {
-      return res.status(404).json({ error: 'No coupons available at the moment.' });
+      return res.status(404).send({ error: 'No coupons available at the moment.' });
     }
 
-    // Mark coupon as claimed
     coupon.isClaimed = true;
-    coupon.claimedBy = req.headers['user-agent']; // Store browser info
-    coupon.ipAddress = userIP;
+    coupon.claimedBy = req.headers['user-agent'];
+    coupon.ipAddress = req.ip;
     coupon.claimedAt = new Date();
     await coupon.save();
 
-    // Set a cookie to prevent immediate re-claims
+    // Set cookie to prevent immediate re-claim
     res.cookie('coupon_claimed', 'true', { 
       maxAge: 24 * 60 * 60 * 1000, // 1 day
-      httpOnly: true, 
-      sameSite: 'Strict' 
+      httpOnly: true 
     });
 
-    res.json({ success: true, coupon: { code: coupon.code, value: coupon.value } });
-  } catch (error) {
-    console.error('Error claiming coupon:', error);
-    res.status(500).json({ error: 'An error occurred while claiming the coupon. Please try again later.' });
+    res.send({ coupon });
+  } catch (e) {
+    res.status(500).send();
   }
 });
 
